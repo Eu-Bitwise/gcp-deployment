@@ -1,0 +1,30 @@
+resources:
+- name: deployment-website
+  type: compute.v1.instance
+  properties:
+    zone: {{ properties["zone"] }}
+    machineType: zones/{{ properties["zone"] }}/machineTypes/{{ properties["machineType"] }}
+    disks:
+    - deviceName: {{ env["name"] }}
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: projects/debian-cloud/global/images/family/debian-11
+    metadata:
+      items:
+      - key: startup-script
+        value: |
+          #!/bin/bash
+          apt-get update
+          apt-get install -y apache2
+          echo "Success! Server was deloyed." > /var/www/html/index.html
+    tags:
+      items: ["http-server"]
+    networkInterfaces:
+    - network: $(ref.deployment-network.selfLink)
+      subnetwork: $(ref.public.selfLink)
+      # Access Config required to give the instance a public IP address
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT

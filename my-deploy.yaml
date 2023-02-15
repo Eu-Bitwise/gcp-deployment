@@ -1,0 +1,18 @@
+imports:
+- path: webserver.jinja
+- path: network.jinja
+
+resources:
+#Create instance
+- name: webserver
+  type: webserver.jinja
+  properties:
+    zone: us-east1-b
+    machineType: f1-micro
+    network: $(ref.deployment-network.selfLink)
+
+#Create deployment-network
+- name: deployment-network
+  type: network.jinja
+  properties:
+    region: us-east1
